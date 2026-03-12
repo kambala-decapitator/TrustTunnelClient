@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     ninja-build \
     clang \
+    clang-tools-18 \
     libc++-dev \
     libc++abi-dev \
     python3 \
@@ -15,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     lldb \
     && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /usr/bin/clang-scan-deps-18 /usr/local/bin/clang-scan-deps
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain 1.85 -y
