@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+ARG TARGETARCH
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -24,9 +26,14 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --defau
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install Go
-RUN curl -LO https://go.dev/dl/go1.22.0.linux-arm64.tar.gz \
-    && tar -C /usr/local -xzf go1.22.0.linux-arm64.tar.gz \
-    && rm go1.22.0.linux-arm64.tar.gz
+RUN case "${TARGETARCH}" in \
+        amd64) GOARCH=amd64 ;; \
+        arm64) GOARCH=arm64 ;; \
+        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && curl -LO "https://go.dev/dl/go1.22.0.linux-${GOARCH}.tar.gz" \
+    && tar -C /usr/local -xzf "go1.22.0.linux-${GOARCH}.tar.gz" \
+    && rm "go1.22.0.linux-${GOARCH}.tar.gz"
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install Conan and Python dependencies
